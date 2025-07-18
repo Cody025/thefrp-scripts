@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
           styledSpan.style.display = 'inline';
-          styledSpan.style.whiteSpace = 'nowrap';
+          styledSpan.style.whiteSpace = 'nowrap'; // Keep Cody on one line
           // Split and replace only the {{first_name}} part
           const originalHTML = element.innerHTML;
           if (originalHTML.includes('{{first_name}}')) {
@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
             element.innerHTML = newHTML.trim();
             console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
           }
-          element.style.whiteSpace = 'nowrap'; // Prevent parent breaks
+          element.style.overflowWrap = 'break-word'; // Allow wrapping for long text
+          element.style.wordBreak = 'break-word'; // Ensure word breaks if needed
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
           console.log("[🟨] Replaced with friend to:", element.textContent);
