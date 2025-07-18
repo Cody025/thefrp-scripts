@@ -27,18 +27,37 @@ document.addEventListener('DOMContentLoaded', function() {
           const styledSpan = document.createElement('span');
           styledSpan.textContent = firstName;
           const computedStyles = window.getComputedStyle(element);
+          const initialColor = computedStyles.getPropertyValue('color');
+          console.log("[🔶] Initial color:", initialColor); // Debug initial color
           for (let style of computedStyles) {
             styledSpan.style[style] = computedStyles.getPropertyValue(style);
           }
-          // Set color with !important to override CF's CSS
-          styledSpan.style.setProperty('color', computedStyles.getPropertyValue('color'), 'important');
+          // Set color with !important initially
+          styledSpan.style.setProperty('color', initialColor, 'important');
           ['font', 'fontFamily', 'fontWeight', 'fontSize', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
           styledSpan.style.display = 'inline';
           styledSpan.style.whiteSpace = 'nowrap';
-          element.innerHTML = element.innerHTML.replace(/{{first_name}}/g, styledSpan.outerHTML);
-          console.log("[🟩] Replaced to:", element.textContent);
+          // Split and replace only the {{first_name}} part
+          const originalHTML = element.innerHTML;
+          if (originalHTML.includes('{{first_name}}')) {
+            const parts = originalHTML.split('{{first_name}}');
+            const newHTML = parts[0] + styledSpan.outerHTML + parts[1];
+            element.innerHTML = newHTML.trim();
+            // Reapply color after delay to catch CF final styling
+            setTimeout(() => {
+              const finalSpan = element.querySelector('span');
+              if (finalSpan) {
+                const finalColor = window.getComputedStyle(element).getPropertyValue('color');
+                finalSpan.style.setProperty('color', finalColor || initialColor, 'important'); // Force with !important
+                console.log("[🔷] Final color applied:", finalColor || initialColor); // Debug final color
+              }
+            }, 200); // Increased delay to 200ms
+            console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
+          }
+          element.style.overflowWrap = 'break-word';
+          element.style.wordBreak = 'break-word';
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
           console.log("[🟨] Replaced with friend to:", element.textContent);
@@ -52,8 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Delay the first replacement to allow CF to apply styles
-  setTimeout(replaceFirstName, 100);
+  // Delay initial replacement to allow CF styling
+  setTimeout(replaceFirstName, 200);
   setTimeout(replaceFirstName, 2000);
   setTimeout(replaceFirstName, 5000);
 });
