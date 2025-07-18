@@ -35,12 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
           ['font', 'fontFamily', 'fontWeight', 'fontSize', 'color', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
-          styledSpan.style.whiteSpace = 'nowrap';
-          // Replace only the placeholder, preserving surrounding text
-          element.innerHTML = element.innerHTML.replace(/{{first_name}}/g, () => {
-            const newSpan = styledSpan.cloneNode(true);
-            return newSpan.outerHTML;
-          });
+          styledSpan.style.whiteSpace = 'nowrap'; // Prevent line breaks within the span
+          element.innerHTML = element.innerHTML.replace(/{{first_name}}/g, styledSpan.outerHTML);
+          // Ensure the parent element also prevents line breaks
+          element.style.whiteSpace = 'nowrap';
           console.log("[🟩] Replaced to:", element.textContent);
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
