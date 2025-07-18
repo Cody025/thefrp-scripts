@@ -37,21 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           styledSpan.style.display = 'inline';
           styledSpan.style.whiteSpace = 'nowrap';
-          // Target and replace the exact text node with {{first_name}}
-          const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-          let node;
-          while ((node = walker.nextNode())) {
-            if (node.nodeValue.includes('{{first_name}}')) {
-              const range = document.createRange();
-              range.selectNodeContents(node);
-              const fragment = range.extractContents();
-              const newSpan = styledSpan.cloneNode(true);
-              node.parentNode.replaceChild(newSpan, node); // Replace only the matching node
-              break; // Stop after first replacement
-            }
+          // Split and replace only the {{first_name}} part
+          const originalHTML = element.innerHTML;
+          if (originalHTML.includes('{{first_name}}')) {
+            const parts = originalHTML.split('{{first_name}}');
+            const newHTML = parts[0] + styledSpan.outerHTML + parts[1];
+            element.innerHTML = newHTML.trim();
+            console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
           }
           element.style.whiteSpace = 'nowrap'; // Prevent parent breaks
-          console.log("[🟩] Replaced to:", element.textContent);
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
           console.log("[🟨] Replaced with friend to:", element.textContent);
