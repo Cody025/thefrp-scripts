@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
           for (let style of computedStyles) {
             styledSpan.style[style] = computedStyles.getPropertyValue(style);
           }
-          // Set color with !important initially
+          // Set color with !important on the span only
           styledSpan.style.setProperty('color', initialColor, 'important');
           ['font', 'fontFamily', 'fontWeight', 'fontSize', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
@@ -45,15 +45,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const parts = originalHTML.split('{{first_name}}');
             const newHTML = parts[0] + styledSpan.outerHTML + parts[1];
             element.innerHTML = newHTML.trim();
-            // Reapply color after delay to catch CF final styling
+            // Debug the span's final color
             setTimeout(() => {
               const finalSpan = element.querySelector('span');
               if (finalSpan) {
-                const finalColor = window.getComputedStyle(element).getPropertyValue('color');
-                finalSpan.style.setProperty('color', finalColor || initialColor, 'important'); // Force with !important
-                console.log("[🔷] Final color applied:", finalColor || initialColor); // Debug final color
+                const spanColor = window.getComputedStyle(finalSpan).getPropertyValue('color');
+                console.log("[🔷] Span color:", spanColor); // Debug span color
+                if (spanColor === 'rgb(0, 0, 0)' || spanColor === '#000000') {
+                  finalSpan.style.setProperty('color', initialColor, 'important'); // Force if black
+                }
               }
-            }, 200); // Increased delay to 200ms
+            }, 200);
             console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
           }
           element.style.overflowWrap = 'break-word';
@@ -72,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Delay initial replacement to allow CF styling
-  setTimeout(replaceFirstName, 200);
+  setTimeout(replaceFirstName, 300);
   setTimeout(replaceFirstName, 2000);
   setTimeout(replaceFirstName, 5000);
 });
