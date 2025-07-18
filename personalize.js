@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
       greetingElements.forEach(element => {
         console.log("[🟢] Replacing in node, original:", element.textContent);
         if (firstName && element.textContent.includes('{{first_name}}')) {
-          const range = document.createRange();
           const styledSpan = document.createElement('span');
           styledSpan.textContent = firstName;
           const computedStyles = window.getComputedStyle(element);
@@ -38,15 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           styledSpan.style.display = 'inline';
           styledSpan.style.whiteSpace = 'nowrap';
-          // Target the exact text node with {{first_name}}
+          // Target and replace the exact text node with {{first_name}}
           const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
           let node;
           while ((node = walker.nextNode())) {
             if (node.nodeValue.includes('{{first_name}}')) {
+              const range = document.createRange();
               range.selectNodeContents(node);
               const fragment = range.extractContents();
               const newSpan = styledSpan.cloneNode(true);
-              range.insertNode(newSpan);
+              node.parentNode.replaceChild(newSpan, node); // Replace only the matching node
               break; // Stop after first replacement
             }
           }
