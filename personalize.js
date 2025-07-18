@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
           for (let style of computedStyles) {
             styledSpan.style[style] = computedStyles.getPropertyValue(style);
           }
-          ['font', 'fontFamily', 'fontWeight', 'fontSize', 'color', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
+          // Explicitly set color from computedStyles to ensure inheritance
+          styledSpan.style.color = computedStyles.getPropertyValue('color');
+          ['font', 'fontFamily', 'fontWeight', 'fontSize', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
           styledSpan.style.display = 'inline';
