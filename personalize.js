@@ -36,21 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
           styledSpan.style.whiteSpace = 'nowrap';
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = element.innerHTML.replace(/{{first_name}}/g, `{{TEMP_${Date.now()}}}`);
-          const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT, null, false);
-          let node;
-          while ((node = walker.nextNode())) {
-            if (node.nodeValue.includes('{{TEMP_' + Date.now() + '}}')) {
-              const range = document.createRange();
-              range.selectNodeContents(node);
-              const fragment = range.extractContents();
-              const newSpan = styledSpan.cloneNode(true);
-              newSpan.textContent = firstName;
-              range.insertNode(newSpan);
-              element.innerHTML = tempDiv.innerHTML.replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
-            }
-          }
+          // Replace only the placeholder, preserving surrounding text
+          element.innerHTML = element.innerHTML.replace(/{{first_name}}/g, () => {
+            const newSpan = styledSpan.cloneNode(true);
+            return newSpan.outerHTML;
+          });
           console.log("[🟩] Replaced to:", element.textContent);
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
