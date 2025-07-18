@@ -29,13 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
           const styledSpan = document.createElement('span');
           styledSpan.textContent = firstName;
           const computedStyles = window.getComputedStyle(element);
-          const computedColor = computedStyles.getPropertyValue('color');
-          console.log("[🔶] Computed color:", computedColor); // Debug color
+          const initialColor = computedStyles.getPropertyValue('color');
+          console.log("[🔶] Initial color:", initialColor); // Debug initial color
           for (let style of computedStyles) {
             styledSpan.style[style] = computedStyles.getPropertyValue(style);
           }
-          // Explicitly set color to ensure inheritance
-          styledSpan.style.color = computedColor;
+          // Set color explicitly
+          styledSpan.style.color = initialColor;
           ['font', 'fontFamily', 'fontWeight', 'fontSize', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
@@ -47,9 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const parts = originalHTML.split('{{first_name}}');
             const newHTML = parts[0] + styledSpan.outerHTML + parts[1];
             element.innerHTML = newHTML.trim();
-            // Reapply color post-insertion to override any CF overrides
-            const finalSpan = element.querySelector('span');
-            if (finalSpan) finalSpan.style.color = computedColor;
+            // Reapply color after a delay to catch CF styling
+            setTimeout(() => {
+              const finalSpan = element.querySelector('span');
+              if (finalSpan) {
+                const finalColor = window.getComputedStyle(element).getPropertyValue('color');
+                finalSpan.style.color = finalColor || initialColor; // Fallback to initial if computed fails
+                console.log("[🔷] Final color applied:", finalColor || initialColor); // Debug final color
+              }
+            }, 100); // Short delay to allow CF styling
             console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
           }
           element.style.overflowWrap = 'break-word'; // Allow wrapping for long text
