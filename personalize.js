@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
       greetingElements.forEach(element => {
         console.log("[🟢] Replacing in node, original:", element.textContent);
         if (firstName && element.textContent.includes('{{first_name}}')) {
+          const range = document.createRange();
           const styledSpan = document.createElement('span');
           styledSpan.textContent = firstName;
           const computedStyles = window.getComputedStyle(element);
@@ -35,10 +36,26 @@ document.addEventListener('DOMContentLoaded', function() {
           ['font', 'fontFamily', 'fontWeight', 'fontSize', 'color', 'letterSpacing', 'lineHeight', 'textAlign', 'textTransform', 'fontStyle'].forEach(style => {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
-          styledSpan.style.whiteSpace = 'nowrap'; // Prevent line breaks within the span
-          element.innerHTML = element.innerHTML.replace(/{{first_name}}/g, styledSpan.outerHTML);
-          // Ensure the parent element also prevents line breaks
-          element.style.whiteSpace = 'nowrap';
+          styledSpan.style.display = 'inline'; // Ensure inline behavior
+          styledSpan.style.whiteSpace = 'nowrap'; // Prevent internal breaks
+          // Find and replace the placeholder text node
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = element.innerHTML;
+          const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT, null, false);
+          let node;
+          while ((node = walker.nextNode())) {
+            if (node.nodeValue.includes('{{first_name}}')) {
+              range.selectNode(node);
+              const fragment = range.extractContents();
+              const newSpan = styledSpan.cloneNode(true);
+              range.insertNode(newSpan);
+              element.innerHTML = tempDiv.innerHTML.replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
+              break;
+            }
+          }
+          element.style.whiteSpace = 'nowrap'; // Prevent parent breaks
+          element.style.overflow = 'hidden'; // Handle overflow
+          element.style.textOverflow = 'ellipsis'; // Optional: truncate if too long
           console.log("[🟩] Replaced to:", element.textContent);
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
