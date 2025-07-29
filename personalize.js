@@ -14,12 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function extractFirstOnly(nameString) {
     if (!nameString) return '';
-    return nameString.trim().split(" ")[0]; // ✅ Only keep the first part before a space
+    // Split on both space and "+" and take the first part
+    return nameString.trim().split(/[\s\+]/)[0]; // Handles " " or "+" as separators
   }
 
   function replaceFirstName() {
     var fullName = getCookie("contact_first_name");
-    var firstName = extractFirstOnly(fullName); // Ensure only the first name is used
+    var firstName = extractFirstOnly(fullName);
     
     if (!firstName) {
       console.log("[🟠] No firstName, checking form submission...");
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("[🟢] Replacing in node, original:", element.textContent);
         if (firstName && element.textContent.includes('{{first_name}}')) {
           const styledSpan = document.createElement('span');
-          styledSpan.textContent = firstName; // Uses only the first name from extractFirstOnly
+          styledSpan.textContent = firstName; // Uses only the first name
 
           const computedStyles = window.getComputedStyle(element);
           for (let style of computedStyles) {
