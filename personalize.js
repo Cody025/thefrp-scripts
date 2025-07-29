@@ -12,8 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
     return cookie;
   }
 
+  function extractFirstOnly(nameString) {
+    if (!nameString) return '';
+    return nameString.trim().split(" ")[0]; // ✅ Only keep the first part before a space
+  }
+
   function replaceFirstName() {
-    var firstName = getCookie("contact_first_name");
+    var fullName = getCookie("contact_first_name");
+    var firstName = extractFirstOnly(fullName); // Ensure only the first name is used
+    
     if (!firstName) {
       console.log("[🟠] No firstName, checking form submission...");
       var formSubmitted = document.querySelector('form[cf-submitted]');
@@ -27,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("[🟢] Replacing in node, original:", element.textContent);
         if (firstName && element.textContent.includes('{{first_name}}')) {
           const styledSpan = document.createElement('span');
-          styledSpan.textContent = firstName;
+          styledSpan.textContent = firstName; // Uses only the first name from extractFirstOnly
+
           const computedStyles = window.getComputedStyle(element);
           for (let style of computedStyles) {
             styledSpan.style[style] = computedStyles.getPropertyValue(style);
@@ -36,8 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
             styledSpan.style[style] = computedStyles.getPropertyValue(style) || '';
           });
           styledSpan.style.display = 'inline';
-          styledSpan.style.whiteSpace = 'nowrap'; // Keep Cody on one line
-          // Split and replace only the {{first_name}} part
+          styledSpan.style.whiteSpace = 'nowrap';
+          
           const originalHTML = element.innerHTML;
           if (originalHTML.includes('{{first_name}}')) {
             const parts = originalHTML.split('{{first_name}}');
@@ -45,8 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
             element.innerHTML = newHTML.trim();
             console.log("[🔵] Replacing text node:", originalHTML, "->", element.textContent);
           }
-          element.style.overflowWrap = 'break-word'; // Allow wrapping for long text
-          element.style.wordBreak = 'break-word'; // Ensure word breaks if needed
+          
+          element.style.overflowWrap = 'break-word';
+          element.style.wordBreak = 'break-word';
         } else if (element.textContent.includes('{{first_name}}')) {
           element.innerText = element.innerText.replace(/{{first_name}}/g, 'friend');
           console.log("[🟨] Replaced with friend to:", element.textContent);
